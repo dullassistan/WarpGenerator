@@ -28,6 +28,12 @@ namespace WarpGenerator
         private int _warpDownloadCount = 0;
         private int _warpEuroDownloadCount = 0;
 
+        // --- Сканер эндпоинтов WARP (warpscout) ---
+        private readonly WarpScannerService _scannerService = new();
+        private bool _foreignOnly = false;
+        private bool _isScanning = false;
+        private System.Threading.CancellationTokenSource? _scanCts;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -740,6 +746,106 @@ namespace WarpGenerator
 
             UpdateClashButtonsVisual();
             TriggerConfigRegeneration();
+        }
+
+        // ======================= СКАНЕР ЭНДПОИНТОВ =======================
+
+        private async void BtnScan_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isScanning)
+            {
+                return;
+            }
+
+            // Разовое согласие на загрузку и применение стороннего инструмента.
+            if (!_scannerService.IsWarpscoutInstalled)
+            {
+                var consent = MessageBox.Show(
+                    "Для реальной проверки эндпоинтов используется сторонний инструмент " +
+                    _scannerService.ToolCredit + ".\n\n" +
+                    "При первом запуске он будет загружен (~5 МБ) с GitHub и проверен по SHA-256, " +
+                    "затем зарегистрирует временный аккаунт WARP и поднимет реальные туннели с этого " +
+                    "компьютера, чтобы измерить пинг и определить рабочие эндпоинты.\n\n" +
+                    "Продолжить?",
+                    "Сканер эндпоинтов WARP",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (consent != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+            }
+
+            _scanCts = new System.Threading.CancellationTokenSource();
+            SetScanningState(true);
+
+            var progress = new Progress<string>(msg => ShowAlert(msg, false));
+            try
+            {
+                var results = await _scannerService.ScanEndpointsAsync(_foreignOnly, progress, _scanCts.Token);
+
+                if (results.Count > 0)
+                {
+                    LstScanResults.ItemsSource = results;
+                    PnlScanResults.Visibility = Visibility.Visible;
+                    ShowAlert($"Готово: найдено рабочих эндпоинтов — {results.Count}. Кликните для выбора.", false);
+                }
+                else
+                {
+                    PnlScanResults.Visibility = Visibility.Collapsed;
+                    ShowAlert("Рабочих эндпоинтов не найдено. Попробуйте ещё раз позже.", true);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                ShowAlert("Сканирование отменено.", true);
+            }
+            catch (Exception ex)
+            {
+                ShowAlert(ex.Message, true);
+            }
+            finally
+            {
+                SetScanningState(false);
+                _scanCts?.Dispose();
+                _scanCts = null;
+            }
+        }
+
+        private void BtnStop_Click(object sender, RoutedEventArgs e)
+        {
+            _scanCts?.Cancel();
+        }
+
+        private void BtnForeignOnly_Click(object sender, RoutedEventArgs e)
+        {
+            _foreignOnly = !_foreignOnly;
+            BtnForeignOnly.Opacity = _foreignOnly ? 1.0 : 0.55;
+        }
+
+        private void EndpointRow_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement fe && fe.DataContext is WarpEndpointItem item)
+            {
+                TxtEndpoint.Text = item.Endpoint;
+                TriggerConfigRegeneration();
+                ShowAlert($"Выбран эндпоинт {item.Endpoint} ({item.PingMs} ms).", false);
+            }
+        }
+
+        private void BtnCloseScanResults_Click(object sender, RoutedEventArgs e)
+        {
+            PnlScanResults.Visibility = Visibility.Collapsed;
+        }
+
+        private void SetScanningState(bool scanning)
+        {
+            _isScanning = scanning;
+            BtnScan.IsEnabled = !scanning;
+            BtnStop.IsEnabled = scanning;
+            BtnForeignOnly.IsEnabled = !scanning;
+            Mouse.OverrideCursor = scanning ? Cursors.Wait : null;
         }
     }
 }
