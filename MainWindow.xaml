@@ -66,7 +66,7 @@
 
             <!-- LEFT COLUMN: ALL COMPACT SETTINGS IN ONE CARD -->
             <Border x:Name="PnlLeftCard" Grid.Column="0" Background="{StaticResource CardBackground}" CornerRadius="7" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" Padding="7">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <!-- 2.1 DNS CHIPS (3x2 GRID) -->
                         <Border Background="{StaticResource CardInnerBg}" CornerRadius="5" Padding="6,5" Margin="0,0,0,5" BorderBrush="{StaticResource CardBorder}" BorderThickness="1">
@@ -457,17 +457,28 @@
                                            FontWeight="Bold" FontSize="12"
                                            Foreground="{StaticResource TextPrimary}"
                                            Margin="0,0,0,7"/>
-                                <StackPanel Orientation="Horizontal">
-                                    <Button x:Name="BtnScan" Content="⚡ Сканировать"
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <!-- Scan / ForeignOnly растянуты на равную ширину как карточки выбора конфигурации;
+                                         Стоп — по центру между ними и в 2 раза меньше. -->
+                                    <Button x:Name="BtnScan" Grid.Column="0" Content="⚡ Сканировать"
                                             Style="{StaticResource ConvexBtnIndigo}"
-                                            Click="BtnScan_Click" Margin="0,0,6,0"/>
-                                    <Button x:Name="BtnStop" Content="🛑 Стоп"
+                                            Height="28" FontSize="11" HorizontalAlignment="Stretch"
+                                            Margin="0,0,4,0" Click="BtnScan_Click"/>
+                                    <Button x:Name="BtnStop" Grid.Column="1" Content="🛑 Стоп"
                                             Style="{StaticResource ConvexBtnRose}"
-                                            Click="BtnStop_Click" IsEnabled="False" Margin="0,0,6,0"/>
-                                    <Button x:Name="BtnForeignOnly" Content="Только зарубежные"
+                                            Height="28" FontSize="11" HorizontalAlignment="Center"
+                                            Padding="10,0" Margin="0,0,4,0"
+                                            Click="BtnStop_Click" IsEnabled="False"/>
+                                    <Button x:Name="BtnForeignOnly" Grid.Column="2" Content="Только зарубежные"
                                             Style="{StaticResource ConvexBtnAmber}"
-                                            Click="BtnForeignOnly_Click" Opacity="0.55"/>
-                                </StackPanel>
+                                            Height="28" FontSize="11" HorizontalAlignment="Stretch"
+                                            Opacity="0.55" Click="BtnForeignOnly_Click"/>
+                                </Grid>
 
                                 <Border x:Name="PnlScanResults" Visibility="Collapsed"
                                         Background="{StaticResource CardBackground}" CornerRadius="6"
