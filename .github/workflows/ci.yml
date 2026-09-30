@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
 
     steps:
@@ -20,7 +20,15 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore WarpGenerator.csproj
+      run: |
+        dotnet restore WarpGenerator.csproj
+        dotnet restore Tests/WarpGenerator.Tests/WarpGenerator.Tests.csproj
 
-    - name: Build Release
-      run: dotnet build WarpGenerator.csproj --configuration Release --no-restore
+    - name: Build
+      run: |
+        dotnet build WarpGenerator.csproj --configuration Release --no-restore
+        dotnet build Tests/WarpGenerator.Tests/WarpGenerator.Tests.csproj --configuration Release --no-restore
+
+    - name: Run Tests
+      run: dotnet test Tests/WarpGenerator.Tests/WarpGenerator.Tests.csproj --configuration Release --no-build --verbosity normal
+
