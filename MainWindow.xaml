@@ -455,9 +455,8 @@
                             <StackPanel>
                                 <TextBlock Text="⚡ Сканер рабочих эндпоинтов"
                                            FontWeight="Bold" FontSize="12"
-                                           Foreground="{StaticResource TextPrimary}"/>
-                                <TextBlock TextWrapping="Wrap" FontSize="10" Foreground="#6B7280" Margin="0,3,0,7"
-                                           Text="Использует сторонний инструмент warpscout © vernette (лицензия MIT). При первом запуске он будет загружен (~5 МБ) с GitHub и проверен по SHA-256. Проверка поднимает реальные туннели с этой машины и выводит 3 лучших эндпоинта."/>
+                                           Foreground="{StaticResource TextPrimary}"
+                                           Margin="0,0,0,7"/>
                                 <StackPanel Orientation="Horizontal">
                                     <Button x:Name="BtnScan" Content="⚡ Сканировать"
                                             Style="{StaticResource ConvexBtnIndigo}"
