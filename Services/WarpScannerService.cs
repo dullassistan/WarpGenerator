@@ -192,7 +192,7 @@ namespace WarpGenerator.Services
                 .ToList();
         }
 
-        private static string? MapProgress(string line)
+        internal static string? MapProgress(string line)
         {
             if (line.Contains("Phase 1"))
             {
@@ -205,7 +205,7 @@ namespace WarpGenerator.Services
             return null;
         }
 
-        private static List<WarpEndpointItem> ParseTable(List<string> lines)
+        internal static List<WarpEndpointItem> ParseTable(List<string> lines)
         {
             var items = new List<WarpEndpointItem>();
             foreach (var raw in lines)
