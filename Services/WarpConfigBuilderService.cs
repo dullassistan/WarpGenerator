@@ -306,5 +306,20 @@ PublicKey = {apiData.PeerPub}
 Endpoint = {endpoint}
 AllowedIPs = {allowedIPs}{peerOptions}";
         }
+
+        public static (string Extension, string Filter) GetConfigFileFormat(string? client)
+        {
+            bool isClash = client != null && client.Equals("Clash", StringComparison.OrdinalIgnoreCase);
+            return isClash
+                ? ("yaml", "Clash YAML (*.yaml)|*.yaml")
+                : ("conf", "WireGuard Config (*.conf)|*.conf");
+        }
+
+        public static string GetConfigFileName(bool isEurope, string? client, int count = 0)
+        {
+            string ext = client != null && client.Equals("Clash", StringComparison.OrdinalIgnoreCase) ? "yaml" : "conf";
+            string basePrefix = isEurope ? "WARP_EURO" : "WARP";
+            return count <= 0 ? $"{basePrefix}.{ext}" : $"{basePrefix}{count}.{ext}";
+        }
     }
 }

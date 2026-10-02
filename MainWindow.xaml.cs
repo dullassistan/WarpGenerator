@@ -524,13 +524,11 @@ namespace WarpGenerator
                 return;
             }
 
-            bool isClash = RbClientClash.IsChecked == true;
-            string ext = isClash ? "yaml" : "conf";
-            string filter = isClash ? "Clash YAML (*.yaml)|*.yaml" : "WireGuard Config (*.conf)|*.conf";
+            string client = RbClientClash.IsChecked == true ? "Clash" : "AmneziaWG";
+            var (ext, filter) = WarpConfigBuilderService.GetConfigFileFormat(client);
 
-            string basePrefix = _isEuropeMode ? "WARP_EURO" : "WARP";
             int currentCount = _isEuropeMode ? _warpEuroDownloadCount : _warpDownloadCount;
-            string defaultName = currentCount == 0 ? $"{basePrefix}.{ext}" : $"{basePrefix}{currentCount}.{ext}";
+            string defaultName = WarpConfigBuilderService.GetConfigFileName(_isEuropeMode, client, currentCount);
 
             var sfd = new SaveFileDialog
             {

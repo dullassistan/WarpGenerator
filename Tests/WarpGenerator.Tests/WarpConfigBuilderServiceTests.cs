@@ -300,5 +300,30 @@ namespace WarpGenerator.Tests
             Assert.Contains("- \"WARP-AWG\"", yaml);
             Assert.Contains("- \"WARP-MASQUE\"", yaml);
         }
+
+        [Theory]
+        [InlineData("Clash", "yaml", "Clash YAML (*.yaml)|*.yaml")]
+        [InlineData("clash", "yaml", "Clash YAML (*.yaml)|*.yaml")]
+        [InlineData("AmneziaWG", "conf", "WireGuard Config (*.conf)|*.conf")]
+        [InlineData("WireSock", "conf", "WireGuard Config (*.conf)|*.conf")]
+        [InlineData(null, "conf", "WireGuard Config (*.conf)|*.conf")]
+        public void GetConfigFileFormat_ReturnsExpectedFormat(string? client, string expectedExt, string expectedFilter)
+        {
+            var (ext, filter) = WarpConfigBuilderService.GetConfigFileFormat(client);
+            Assert.Equal(expectedExt, ext);
+            Assert.Equal(expectedFilter, filter);
+        }
+
+        [Theory]
+        [InlineData(true, "AmneziaWG", 0, "WARP_EURO.conf")]
+        [InlineData(true, "WireSock", 2, "WARP_EURO2.conf")]
+        [InlineData(false, "AmneziaWG", 0, "WARP.conf")]
+        [InlineData(false, "Clash", 0, "WARP.yaml")]
+        [InlineData(false, "clash", 3, "WARP3.yaml")]
+        public void GetConfigFileName_ReturnsExpectedName(bool isEurope, string? client, int count, string expected)
+        {
+            string name = WarpConfigBuilderService.GetConfigFileName(isEurope, client, count);
+            Assert.Equal(expected, name);
+        }
     }
 }
